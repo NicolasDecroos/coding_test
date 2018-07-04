@@ -19,6 +19,7 @@ try {
 |
 */
 
+
 $app = new Laravel\Lumen\Application(
     realpath(__DIR__.'/../')
 );
@@ -79,8 +80,10 @@ $app->middleware([
 */
 
 $app->register(App\Providers\AppServiceProvider::class);
+$app->bind('App\Interfaces\DiscountInterface', 'App\Repositories\DiscountRepository');
 // $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
+
 
 /*
 |--------------------------------------------------------------------------

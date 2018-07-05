@@ -28,24 +28,8 @@ class DiscountsController extends Controller
      */
     public function getDiscount(Request $request)
     {
-        $order->customer = $data['customer-id'];
-        $order->total = floatval($data['total']);
-        $order->items = array();
-        foreach ($data['items'] as $data_item) {
-            $item = new stdClass();
-            $item->product_id = $data_item['product-id'];
-            $item->quantity = floatval($data_item['quantity']);
-            $item->unit_price = floatval($data_item['unit-price']);
-            $item->discounted_price = floatval($data_item['total']);
-            $item->total = floatval($data_item['total']);
-            array_push($order->items, $item);
-        }
-
         if (isset($request) && !empty($request)) {
-            $data = $request->json()->all();
-            $order = $this->discount->deserializeOrder($data);
-
-            return $this->discount->calculateDiscount($order);
+            return $this->discount->calculateDiscount($request->json()->all());
         }
     }
 }

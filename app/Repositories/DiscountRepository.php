@@ -40,11 +40,11 @@ class DiscountRepository implements DiscountInterface {
      * @param $order
      * @param $discount
      */
-    private function calculateDiscountPrice($order, $discount)
+    private function calculateDiscountPrice(&$order, &$discount)
     {
         /* Calculate the new discounted total price */
         $total = 0;
-        foreach ($order['items'] as $item) {
+        foreach ($order['items'] as &$item) {
             if (!array_key_exists('discounted_price', $item)) {
                 $item['discounted_price'] = $item['total'];
             }
@@ -63,10 +63,10 @@ class DiscountRepository implements DiscountInterface {
      * @param $order
      * @param $discount
      */
-    private function revenueDiscount($order, $discount)
+    private function revenueDiscount(&$order, &$discount)
     {
-        if (isset($order['customer'])) {
-            $customer = Customer::find($order['customer']);
+        if (isset($order['customer-id'])) {
+            $customer = Customer::find($order['customer-id']);
             if ($customer['revenue'] > 1000) {
                 $discount['applied_discounts'] = $this->addAppliedDiscount($discount['applied_discounts'], 1);
             }
@@ -81,20 +81,18 @@ class DiscountRepository implements DiscountInterface {
      * @param $order
      * @param $discount
      */
-    private function switchesDiscount($order, $discount)
+    private function switchesDiscount(&$order, &$discount)
     {
         if (isset($order['items']) && !empty($order['items'])) {
-            foreach ($order['items'] as $item) {
+            foreach ($order['items'] as &$item) {
                 $product = Product::find($item['product-id']);
-                print_r($product->category()->get(['id']));
-                if ($product->category() === 2 && $item['quantity'] > 5) {
-                    $item['discounted_price'] = $item['total'] - $item['unit-price'];
+                if ($product->category === 2 && $item['quantity'] > 5) {
+                    $item['discounted_price'] = intval($item['total']) - intval($item['unit-price']);
                     array_push($discount['discounted_items'], $item);
                     $discount['applied_discounts'] = $this->addAppliedDiscount($discount['applied_discounts'], 2);
                 }
             }
         }
-        return;
     }
 
     /**
@@ -104,25 +102,24 @@ class DiscountRepository implements DiscountInterface {
      * @param $order
      * @param $discount
      */
-    private function toolsDiscount($order, $discount)
+    private function toolsDiscount(&$order, &$discount)
     {
-        if (isset($order->items) && !empty($order->items)) {
+        if (isset($order['items']) && !empty($order['items'])) {
             $productIds = array();
-            foreach ($order->items as $item) {
-                array_push($productIds, $item['product_id']);
+            foreach ($order['items'] as $item) {
+                array_push($productIds, $item['product-id']);
             }
             $tools = Product::whereIn('id', $productIds)->where("category", "=", 1)->get();
             if($tools->count() >= 2){
                 $product = $tools->where('price', '>', 0)->sortByDesc('price')->first();
-                if(isset($item)){
-                    $item = $this->arraySearch($order['items'], 'product_id', $product->id);
-                    $item['discounted_price'] = $item['total'] - (20 * $item['total']) / 100;
-                    array_push($discount['discounted_items'], $item);
+                $index = array_search($this->arraySearch($order['items'], 'product-id', $product->id), $order['items']);
+                if($index > -1){
+                    $order['items'][$index]['discounted_price'] = $order['items'][$index]['total'] - (20 * $order['items'][$index]['total']) / 100;
+                    array_push($discount['discounted_items'], $order['items'][$index]);
                     $discount['applied_discounts'] = $this->addAppliedDiscount($discount['applied_discounts'], 3);
                 }
             }
         }
-        return;
     }
 
     /**
@@ -131,7 +128,7 @@ class DiscountRepository implements DiscountInterface {
      * @param $discountId
      * @return mixed
      */
-    private function addAppliedDiscount($appliedDiscounts, $discountId)
+    private function addAppliedDiscount(&$appliedDiscounts, $discountId)
     {
         $appliedDiscount = Discount::where('id', '=', $discountId)->get(['id', 'name', 'description'])->first();
         if (isset($appliedDiscount)) {
@@ -150,7 +147,7 @@ class DiscountRepository implements DiscountInterface {
     private static function arraySearch($array, $index, $value)
     {
         foreach ($array as $item) {
-            if ($item->{$index} == $value) {
+            if ($item{$index} == $value) {
                 return $item;
             }
         }

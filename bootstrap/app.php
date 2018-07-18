@@ -25,9 +25,9 @@ $app = new Laravel\Lumen\Application(
 );
 
 $app->withFacades();
-
 $app->withEloquent();
 
+$app->configure('swagger-lume');
 /*
 |--------------------------------------------------------------------------
 | Register Container Bindings
@@ -48,6 +48,7 @@ $app->singleton(
     Illuminate\Contracts\Console\Kernel::class,
     App\Console\Kernel::class
 );
+$app->bind('App\Interfaces\DiscountInterface', 'App\Repositories\DiscountRepository');
 
 /*
 |--------------------------------------------------------------------------
@@ -78,9 +79,9 @@ $app->middleware([
 | totally optional, so you are not required to uncomment this line.
 |
 */
-
 $app->register(App\Providers\AppServiceProvider::class);
-$app->bind('App\Interfaces\DiscountInterface', 'App\Repositories\DiscountRepository');
+$app->register(\SwaggerLume\ServiceProvider::class);
+
 // $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 

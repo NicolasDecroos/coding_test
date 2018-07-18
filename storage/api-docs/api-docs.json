@@ -1,0 +1,73 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Discount API",
+        "version": "1.0.0"
+    },
+    "basePath": "192.168.10.10",
+    "schemes": [
+        "http"
+    ],
+    "paths": {
+        "/api/discount": {
+            "post": {
+                "summary": "Calculate discounts for an order",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Order to calculate the discounts",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "customer-id": {
+                                    "description": "Customer id",
+                                    "type": "string"
+                                },
+                                "items": {
+                                    "description": "Ordered items",
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "product-id": {
+                                                "description": "Product id",
+                                                "type": "string"
+                                            },
+                                            "quantity": {
+                                                "description": "Product quantity",
+                                                "type": "string"
+                                            },
+                                            "unit-price": {
+                                                "description": "Product unit price",
+                                                "type": "string"
+                                            },
+                                            "total": {
+                                                "description": "Product total price",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "total": {
+                                    "description": "Total order price",
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "410": {
+                        "description": "No order given"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {}
+}

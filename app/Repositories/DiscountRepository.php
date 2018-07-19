@@ -21,17 +21,27 @@ class DiscountRepository implements DiscountInterface {
      */
     public function calculateDiscount($order)
     {
-        $discount = array();
-        $discount['applied_discounts'] = array();
-        $discount['discounted_items'] = array();
-        $discount['discounted_price'] =  $order['total'];
-        $discount['original_price'] = $order['total'];
+        $discount = $this->createDiscount($order);
         $this->switchesDiscount($order, $discount);
         $this->toolsDiscount($order, $discount);
         $this->revenueDiscount($order, $discount);
         $this->calculateDiscountPrice($order, $discount);
 
         return response()->json($discount);
+    }
+
+    /**
+     * Create an empty discount object
+     * @param $order
+     * @return array
+     */
+    private function createDiscount($order){
+        $discount = array();
+        $discount['applied_discounts'] = array();
+        $discount['discounted_items'] = array();
+        $discount['discounted_price'] =  $order['total'];
+        $discount['original_price'] = $order['total'];
+        return $discount;
     }
 
     /**
